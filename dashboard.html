@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+
+	<link rel="stylesheet" href="css/dashboard.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h2>IMS</h2>
+            </div>
+
+            <div class="user-box">
+                <h4>Michael Djan</h4>
+                <p>Inventory Officer</p>
+            </div>
+
+            <ul class="menu">
+
+                <li class="active">
+                    <a href="dashboard.html">Dashboard</a>
+                </li>
+
+                <li>
+                 <a href="inventory.html">Inventory</a>
+                </li>
+
+                <li>
+		  <a href="stock-entry.html">Stock-Entry</a>
+                    
+                </li>
+
+                <li>
+		    <a href="history.html">History</a>
+                </li>
+
+                <li>
+		 <a href="reports.html">Report</a>
+
+                    
+                </li>
+
+                <li>
+                    <a href="index.html">Logout</a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <div class="header">
+                <h1>Dashboard</h1>
+                <p>Welcome Back</p>
+		<p id="currentDate"></p>
+
+            </div>
+
+            <!-- STATISTICS CARDS -->
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Total Items</h3>
+                    <h2>95</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Current Stock</h3>
+                    <h2>18,540</h2>
+                </div>
+
+                <div class="card">
+                    <h3>Transactions</h3>
+                    <h2>24</h2>
+                </div>
+
+                <div class="card warning">
+                    <h3>Low Stock Items</h3>
+                    <h2>8</h2>
+                </div>
+
+		<!--Quick Statistics Cards-->
+<div class="summary-grid">
+
+    <div class="summary-box">
+        <h4>Available Items</h4>
+        <h2>80</h2>
+    </div>
+
+    <div class="summary-box">
+        <h4>Medium Stock</h4>
+        <h2>10</h2>
+    </div>
+
+    <div class="summary-box">
+        <h4>Low Stock</h4>
+        <h2>5</h2>
+    </div>
+
+</div>
+		
+
+            </div>
+
+            <!-- RECENT TRANSACTIONS -->
+
+            <div class="table-card">
+
+                <h2>Recent Transactions</h2>
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Item</th>
+                            <th>Action</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>15-Jun-2026</td>
+                            <td>ARCHIVE BOXES</td>
+                            <td>Supplied</td>
+                            <td>2</td>
+                        </tr>
+
+                        <tr>
+                            <td>15-Jun-2026</td>
+                            <td>CEDI DEPOSIT</td>
+                            <td>Supplied</td>
+                            <td>20</td>
+                        </tr>
+
+                        <tr>
+                            <td>08-Jun-2026</td>
+                            <td>FUNDS TRANSFER BOOKLET</td>
+                            <td>Supplied</td>
+                            <td>3</td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+<footer class="footer">
+    <p>
+        © 2026 Inventory Management System | Version 1.0
+    </p>
+
+    <p>
+        Developed for Small-Scale Business Inventory Management
+    </p>
+</footer>
+
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>
+
+
+<script>
+
+const today = new Date();
+
+document.getElementById("currentDate")
+.innerHTML = today.toDateString();
+
+</script>

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+<title>Inventory</title>
+
+     <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<!-- Add Item Modal -->
+
+<div id="addItemModal" class="modal">
+
+    <div class="modal-content">
+
+        <h2>Add New Inventory Item</h2>
+
+        <div class="form-group">
+
+            <label>Item Name</label>
+
+            <input
+                type="text"
+                id="newItemName"
+                placeholder="Enter Item Name"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label>B/F</label>
+
+            <input
+                type="number"
+                id="newBF"
+                placeholder="0"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Current Stock</label>
+
+            <input
+                type="number"
+                id="newStock"
+                placeholder="0"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label>Status</label>
+
+            <select id="newStatus">
+
+                <option>Available</option>
+                <option>Medium</option>
+                <option>Low</option>
+
+            </select>
+
+        </div>
+
+        <div class="modal-buttons">
+
+            <button
+                class="btn-confirm"
+                onclick="saveNewItem()">
+
+                Save
+
+            </button>
+
+            <button
+                class="btn-cancel"
+                onclick="closeAddItemModal()">
+
+                Cancel
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- View Modal -->
+
+<div id="viewModal" class="modal">
+
+    <div class="modal-content">
+
+        <h2>Inventory Details</h2>
+
+        <p><strong>Item Name:</strong> A4 SHEET</p>
+
+        <p><strong>B/F:</strong> 0</p>
+
+        <p><strong>Current Stock:</strong> 0</p>
+
+        <p><strong>Last Updated:</strong> 06/10/2026</p>
+
+        <p><strong>Status:</strong> Low</p>
+
+        <button
+            class="btn-view"
+            onclick="closeViewModal()">
+
+            Close
+
+        </button>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>IMS</h2>
+        </div>
+
+        <div class="user-box">
+            <h4>Michael Djan</h4>
+            <p>Inventory Officer</p>
+        </div>
+
+       <ul class="menu">
+
+                <li>
+                    <a href="dashboard.html">Dashboard</a>
+                </li>
+
+                <li class = "active">
+                 <a href="inventory.html">Inventory</a>
+                </li>
+
+                <li>
+		  <a href="stock-entry.html">Stock-Entry</a>
+                    
+                </li>
+
+                <li>
+		    <a href="history.html">History</a>
+                </li>
+
+                <li>
+		 <a href="reports.html">Report</a>
+
+                    
+                </li>
+
+                <li>
+                    <a href="index.html">Logout</a>
+                </li>
+
+            </ul>
+
+
+    </aside>
+
+    <!-- Main Content -->
+
+    <main class="main-content">
+
+        <div class="header">
+
+            <h1>Inventory Records</h1>
+
+            <p>View Current Inventory Levels</p>
+
+        </div>
+
+        <div class="table-card">
+
+            <div class="toolbar">
+
+                <input
+                    type="text"
+                    class="search-box"
+                    placeholder="Search Item..."
+                >
+
+               <button class="add-btn"
+    onclick="openAddItemModal()"> + Add Item </button>
+
+            </div>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>B/F</th>
+                        <th>Current Stock</th>
+                        <th>Last Updated</th>
+                        <th>Status</th>
+			<th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id = "inventoryTable">
+
+                    <tr>
+                        <td>A4 SHEET</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>06/10/2026</td>
+                        <td><span class="status low">Low</span></td>
+
+ 		    <td>
+			<button class="btn-view" onclick="viewItem(this)"> View </button>
+  			 <button class="btn-edit" onclick="editItem(this)"> Edit </button>
+   			<button class="btn-delete" onclick="deleteItem(this)"> Delete </button>
+
+		     </td>
+
+
+                    </tr>
+
+                    <tr>
+                        <td>ARCHIVE BOXES</td>
+                        <td>13</td>
+                        <td>13</td>
+                        <td>15/06/2026</td>
+                        <td><span class="status medium">Medium</span></td>
+
+		 <td>
+			<button class="btn-view" onclick="viewItem(this)"> View </button>
+  			 <button class="btn-edit" onclick="editItem(this)"> Edit </button>
+   			 <button class="btn-delete" onclick="deleteItem(this)"> Delete </button>
+
+
+		     </td>
+
+
+                   </tr>
+
+                    <tr>
+                        <td>CEDI DEPOSIT</td>
+                        <td>463</td>
+                        <td>463</td>
+                        <td>15/06/2026</td>
+                        <td><span class="status high">Available</span></td>
+
+		 <td>
+			<button class="btn-view" onclick="viewItem(this)"> View </button>
+  			<button class="btn-edit" onclick="editItem(this)"> Edit </button>
+   			 <button class="btn-delete" onclick="deleteItem(this)"> Delete </button>
+
+		     </td>
+
+
+                    </tr>
+
+                    <tr>
+                        <td>NOTE PADS</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td>08/06/2026</td>
+                        
+	
+			<td> <span class="status low">Low</span></td>
+
+		      <td>
+			<button class="btn-view" onclick="openViewModal(this)"> View</button>
+  			<button class="btn-edit" onclick="editItem(this)"> Edit </button>
+   			<button class="btn-delete" onclick="deleteItem(this)"> Delete </button>
+
+		     </td>
+
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+	
+
+<footer class="footer">
+    <p>
+        © 2026 Inventory Management System
+        <br>
+        All Rights Reserved
+    </p>
+</footer>
+
+    </main>
+
+</div>
+
+<script>
+//add modal 
+function openViewModal(
+    item,
+    bf,
+    stock,
+    date,
+    status
+){
+
+    document.getElementById("modalItem").innerText = item;
+    document.getElementById("modalBF").innerText = bf;
+    document.getElementById("modalStock").innerText = stock;
+    document.getElementById("modalDate").innerText = date;
+    document.getElementById("modalStatus").innerText = status;
+
+    document.getElementById("viewModal").style.display = "flex";
+}
+
+function closeViewModal(){
+
+    document.getElementById("viewModal").style.display = "none";
+
+}
+
+function openAddItemModal(){
+
+    document.getElementById("addItemModal").style.display = "flex";
+
+}
+
+function closeAddItemModal(){
+
+    document.getElementById("addItemModal").style.display = "none";
+
+}
+
+function saveNewItem(){
+
+    const itemName =
+        document.getElementById("newItemName").value.trim();
+
+    const bf =
+        document.getElementById("newBF").value;
+
+    const stock =
+        document.getElementById("newStock").value;
+
+    const status =
+        document.getElementById("newStatus").value;
+
+    if(itemName === ""){
+
+        alert("Please enter item name.");
+
+        return;
+    }
+
+    const table =
+        document.getElementById("inventoryTable");
+
+    const rows = table.getElementsByTagName("tr");
+
+    for(let i = 0; i < rows.length; i++){
+
+        const existingItem =
+            rows[i].cells[0].innerText.trim().toUpperCase();
+
+        if(existingItem === itemName.toUpperCase()){
+
+            alert("Item already exists!");
+
+            return;
+
+        }
+    }
+
+    let badgeClass = "";
+
+    if(status === "Available"){
+        badgeClass = "high";
+    }
+
+    if(status === "Medium"){
+        badgeClass = "medium";
+    }
+
+    if(status === "Low"){
+        badgeClass = "low";
+    }
+
+    table.innerHTML += `
+
+    <tr>
+
+        <td>${itemName}</td>
+
+        <td>${bf}</td>
+
+        <td>${stock}</td>
+
+        <td>${new Date().toLocaleDateString()}</td>
+
+        <td>
+
+            <span class="status ${badgeClass}">
+                ${status}
+            </span>
+
+        </td>
+
+        <td>
+
+            <button
+                class="btn-view"
+                onclick="viewItem(this)">
+                View
+            </button>
+
+            <button
+                class="btn-edit"
+                onclick="editItem(this)">
+                Edit
+            </button>
+
+            <button
+                class="btn-delete"
+                onclick="deleteItem(this)">
+                Delete
+            </button>
+
+        </td>
+
+    </tr>
+
+    `;
+
+    closeAddItemModal();
+
+    alert("Item Added Successfully!");
+
+}
+
+
+
+function closeViewModal() {
+
+    document.getElementById("viewModal")
+        .style.display = "none";
+
+}
+
+/* View Items*/
+
+function viewItem(button){
+
+    const row = button.parentElement.parentElement;
+
+    document.getElementById("modalItem").innerText =
+        row.cells[0].innerText;
+
+    document.getElementById("modalBF").innerText =
+        row.cells[1].innerText;
+
+    document.getElementById("modalStock").innerText =
+        row.cells[2].innerText;
+
+    document.getElementById("modalDate").innerText =
+        row.cells[3].innerText;
+
+    document.getElementById("modalStatus").innerText =
+        row.cells[4].innerText;
+
+    document.getElementById("viewModal")
+        .style.display = "flex";
+}
+
+/* Delete Items*/
+function deleteItem(button){
+
+    const confirmDelete =
+        confirm("Are you sure you want to delete this item?");
+
+    if(!confirmDelete){
+
+        return;
+    }
+
+    const row =
+        button.parentElement.parentElement;
+
+    row.remove();
+}
+
+/*Edit Item */
+
+function editItem(button){
+
+    const row = button.parentElement.parentElement;
+
+    const currentItem = row.cells[0].innerText;
+    const currentBF = row.cells[1].innerText;
+    const currentStock = row.cells[2].innerText;
+    const currentStatus = row.cells[4].innerText;
+
+    const newItem = prompt(
+        "Edit Item Name:",
+        currentItem
+    );
+
+    if(newItem === null) return;
+
+    const newBF = prompt(
+        "Edit B/F:",
+        currentBF
+    );
+
+    if(newBF === null) return;
+
+    const newStock = prompt(
+        "Edit Current Stock:",
+        currentStock
+    );
+
+    if(newStock === null) return;
+
+    const newStatus = prompt(
+        "Edit Status (Available, Medium, Low):",
+        currentStatus
+    );
+
+    if(newStatus === null) return;
+
+    row.cells[0].innerText = newItem;
+    row.cells[1].innerText = newBF;
+    row.cells[2].innerText = newStock;
+
+    let statusClass = "";
+
+    if(newStatus === "Available"){
+        statusClass = "high";
+    }
+    else if(newStatus === "Medium"){
+        statusClass = "medium";
+    }
+    else{
+        statusClass = "low";
+    }
+
+    row.cells[4].innerHTML =
+        `<span class="status ${statusClass}">
+            ${newStatus}
+        </span>`;
+}
+
+</script>
+
+</body>
+</html>
