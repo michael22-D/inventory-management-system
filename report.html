@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Report</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>IMS</h2>
+            </div>
+
+            <div class="user-box">
+                <h4>Michael Djan</h4>
+                <p>Inventory Officer</p>
+            </div>
+
+            <ul class="menu">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="inventory.html">Inventory</a></li>
+                <li><a href="stock-entry.html">Stock-Entry</a></li>
+                <li><a href="history.html">History</a></li>
+                <li class="active"><a href="report.html">Report</a></li>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1>Inventory Report</h1>
+                <p>Inventory movement summary</p>
+            </div>
+
+            <div class="toolbar report-toolbar">
+                <select id="reportMonth" class="filter-box" aria-label="Report month">
+                    <option value="all">All Months</option>
+                    <option value="2026-06">June 2026</option>
+                    <option value="2026-07">July 2026</option>
+                    <option value="2026-08">August 2026</option>
+                </select>
+                <div class="report-actions">
+                    <button id="printReport" class="add-btn" type="button">Print</button>
+                    <button id="exportReport" class="add-btn" type="button">Export CSV</button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ITEM</th>
+                            <th>B/F</th>
+                            <th>RECEIVED</th>
+                            <th>SUPPLIED</th>
+                            <th>STOCK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTable"></tbody>
+                </table>
+            </div>
+
+            <footer class="footer">
+                <p>© 2026 Inventory Management System</p>
+                <p>All Rights Reserved</p>
+            </footer>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
