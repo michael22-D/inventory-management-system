@@ -17,17 +17,17 @@
             </div>
 
             <div class="user-box">
-                <h4>Michael Djan</h4>
-                <p>Inventory Officer</p>
+                <h4 data-user-name>Loading account...</h4>
+                <p data-user-role>Loading role...</p>
             </div>
 
             <ul class="menu">
                 <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="inventory.html">Inventory</a></li>
-                <li class="active"><a href="stock-entry.html">Stock-Entry</a></li>
+                <li data-required-permission="canManageInventory"><a href="inventory.html">Inventory</a></li>
+                <li class="active" data-required-permission="canManageStock"><a href="stock-entry.html">Stock-Entry</a></li>
                 <li><a href="history.html">History</a></li>
-                <li><a href="report.html">Report</a></li>
-                <li><a href="admin.html">Admin</a></li>
+                <li data-required-permission="canViewReports"><a href="report.html">Report</a></li>
+                <li class="admin-only-nav" hidden><a href="admin.html">Admin</a></li>
                 <li><a href="index.html">Logout</a></li>
             </ul>
         </aside>
@@ -38,7 +38,7 @@
                 <p>Record inventory received or supplied</p>
             </div>
 
-            <div class="form-card">
+            <div class="form-card" data-required-permission="canManageStock">
                 <form id="stockEntryForm">
                     <div class="row">
                         <div class="form-group">
@@ -97,7 +97,7 @@
                 Transaction saved successfully.
             </div>
 
-            <div class="form-card import-card">
+            <div class="form-card import-card" data-required-permission="canManageInventory">
                 <h2>Import Inventory</h2>
                 <p class="import-help">Use an Excel, CSV, or text-based PDF with columns such as ITEM, B/F, RECEIVED, SUPPLIED, and STOCK.</p>
                 <input id="inventoryFile" type="file" accept=".xlsx,.xls,.csv,.pdf">

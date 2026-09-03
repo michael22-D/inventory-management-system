@@ -166,8 +166,8 @@
         </div>
 
         <div class="user-box">
-            <h4>Michael Djan</h4>
-            <p>Inventory Officer</p>
+            <h4 data-user-name>Loading account...</h4>
+            <p data-user-role>Loading role...</p>
         </div>
 
        <ul class="menu">
@@ -176,11 +176,11 @@
                     <a href="dashboard.html">Dashboard</a>
                 </li>
 
-                <li class = "active">
+                <li class = "active" data-required-permission="canManageInventory">
                  <a href="inventory.html">Inventory</a>
                 </li>
 
-                <li>
+                <li data-required-permission="canManageStock">
 		  <a href="stock-entry.html">Stock-Entry</a>
                     
                 </li>
@@ -189,13 +189,13 @@
 		    <a href="history.html">History</a>
                 </li>
 
-                <li>
+                  <li data-required-permission="canViewReports">
          <a href="report.html">Report</a>
 
                     
                 </li>
 
-                <li><a href="admin.html">Admin</a></li>
+                <li class="admin-only-nav" hidden><a href="admin.html">Admin</a></li>
                 <li>
                     <a href="index.html">Logout</a>
                 </li>
@@ -227,7 +227,7 @@
                     placeholder="Search Item..."
                 >
 
-               <button class="add-btn"
+               <button class="add-btn" data-required-permission="canManageInventory"
     onclick="openAddItemModal()"> + Add Item </button>
 
             </div>

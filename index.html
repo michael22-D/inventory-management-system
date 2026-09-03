@@ -71,12 +71,14 @@
             const button = event.target.querySelector("button");
             button.disabled = true;
             try {
+                const tabId = crypto.randomUUID();
                 const response = await fetch("api/index.php?action=login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         username: document.getElementById("username").value,
-                        password: document.getElementById("password").value
+                        password: document.getElementById("password").value,
+                        tabId
                     })
                 });
                 const responseText = await response.text();
@@ -90,6 +92,7 @@
                     throw new Error("The PHP API returned an empty response. Open http://localhost/IMS/index.html with Apache running in XAMPP.");
                 }
                 if (!response.ok) throw new Error(result.error || "Login failed.");
+                sessionStorage.setItem("ims_tab_id", tabId);
                 window.location.href = "dashboard.html";
             } catch (error) {
                 alert(error.message);

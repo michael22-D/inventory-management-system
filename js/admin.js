@@ -90,7 +90,14 @@ userList.addEventListener("click", async event => {
 });
 
 async function loadUsers() {
-    try { users = (await adminRequest("users")).users; renderUsers(); }
-    catch (error) { document.getElementById("formMessage").innerText = error.message; }
+    try {
+        users = (await adminRequest("users")).users;
+        document.querySelectorAll(".admin-only-nav").forEach(element => { element.hidden = false; });
+        renderUsers();
+    } catch (error) {
+        document.body.classList.add("access-ready");
+        document.querySelector(".admin-layout").hidden = true;
+        document.querySelector(".header p").innerText = error.message;
+    }
 }
 loadUsers();

@@ -14,6 +14,37 @@ const defaultTransactions = [
 let inventoryCache = [];
 let transactionsCache = [];
 
+async function logout(message = "") {
+    try { await fetch("api/index.php?action=logout", { method: "POST" }); } catch { /* Session may already be gone. */ }
+    sessionStorage.removeItem("ims_tab_id");
+    if (message) alert(message);
+    window.location.href = "index.html";
+}
+
+async function confirmTab() {
+    const tabId = sessionStorage.getItem("ims_tab_id");
+    if (!tabId) return;
+    const channel = typeof BroadcastChannel === "undefined" ? null : new BroadcastChannel("ims-active-tab");
+    let duplicate = false;
+    if (channel) {
+        channel.onmessage = event => {
+            if (event.data === tabId) duplicate = true;
+            else if (event.data === "probe") channel.postMessage(tabId);
+        };
+        channel.postMessage("probe");
+        await new Promise(resolve => setTimeout(resolve, 250));
+        channel.close();
+    }
+    if (duplicate) {
+        sessionStorage.removeItem("ims_tab_id");
+        alert("This tab was duplicated. You have been logged out of the duplicate tab.");
+        window.location.href = "index.html";
+        return;
+    }
+    const response = await apiRequest("claim-tab", { tabId });
+    return response;
+}
+
 async function apiRequest(action, data = {}) {
     const response = await fetch(`api/index.php?action=${encodeURIComponent(action)}`, {
         method: "POST",
@@ -43,10 +74,39 @@ function getTransactions() {
 }
 
 async function refreshData() {
+    await confirmTab();
     const page = window.location.pathname.split("/").pop().toLowerCase();
     const result = await apiRequest("bootstrap", { page });
     inventoryCache = result.inventory;
     transactionsCache = result.transactions;
+    document.querySelectorAll(".admin-only-nav").forEach(element => {
+        element.hidden = result.currentUser?.role !== "Administrator";
+    });
+    const permissions = result.currentUser?.permissions || {};
+    document.querySelectorAll("[data-user-name]").forEach(element => {
+        element.innerText = result.currentUser?.displayName || result.currentUser?.username || "User";
+    });
+    document.querySelectorAll("[data-user-role]").forEach(element => {
+        element.innerText = result.currentUser?.role || "User";
+    });
+    document.querySelectorAll("[data-welcome-name]").forEach(element => {
+        element.innerText = result.currentUser?.displayName || result.currentUser?.username || "your account";
+    });
+    document.querySelectorAll("[data-required-permission]").forEach(element => {
+        element.hidden = permissions[element.dataset.requiredPermission] !== true;
+    });
+    document.body.classList.add("access-ready");
+    const permissionStorageKey = `ims_permissions_${result.currentUser?.username || "user"}`;
+    const previousPermissions = JSON.parse(localStorage.getItem(permissionStorageKey) || "null");
+    const added = previousPermissions && Object.keys(permissions).filter(key => permissions[key] && !previousPermissions[key]);
+    if (added?.length) alert("A new privilege has been added to your account. Your access has been updated.");
+    localStorage.setItem(permissionStorageKey, JSON.stringify(permissions));
+    const requiredPagePermission = { "inventory.html": "canManageInventory", "stock-entry.html": "canManageStock", "report.html": "canViewReports" }[page];
+    if (requiredPagePermission && permissions[requiredPagePermission] !== true && result.currentUser?.role !== "Administrator") {
+        alert("You do not have permission to access this section.");
+        window.location.href = "dashboard.html";
+        return;
+    }
     renderInventory();
     renderHistory();
     renderReport();
@@ -355,7 +415,18 @@ function renderHistory() {
     if (!table) return;
 
     const search = (document.getElementById("historySearch")?.value || "").toLowerCase();
-    const month = document.getElementById("historyMonth")?.value || "all";
+    const monthSelect = document.getElementById("historyMonth");
+    const selectedMonth = monthSelect?.value || "all";
+    if (monthSelect) {
+        const months = [...new Set(getTransactions().map(transaction => transaction.month).filter(Boolean))].sort().reverse();
+        monthSelect.innerHTML = `<option value="all">All Months</option>${months.map(value => {
+            const [year, monthNumber] = value.split("-");
+            const label = new Date(Number(year), Number(monthNumber) - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+            return `<option value="${value}">${label}</option>`;
+        }).join("")}`;
+        monthSelect.value = months.includes(selectedMonth) ? selectedMonth : "all";
+    }
+    const month = monthSelect?.value || "all";
     const transactions = getTransactions().filter(transaction => {
         const matchesSearch = [transaction.item, transaction.action, transaction.user]
             .some(value => value.toLowerCase().includes(search));
@@ -488,7 +559,17 @@ function exportHistory() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    refreshData().catch(error => alert(error.message));
+    refreshData().catch(error => {
+        if (error.message.includes("permission") || error.message.includes("Administrator")) {
+            alert(error.message);
+            window.location.href = "dashboard.html";
+            return;
+        }
+        alert(error.message);
+    });
+    document.querySelectorAll('a[href="index.html"]').forEach(link => {
+        link.addEventListener("click", event => { event.preventDefault(); logout(); });
+    });
     document.querySelector(".search-box")?.addEventListener("input", renderInventory);
     document.getElementById("historySearch")?.addEventListener("input", renderHistory);
     document.getElementById("historyMonth")?.addEventListener("change", renderHistory);
@@ -502,4 +583,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("stockQuantity")?.addEventListener("input", updateStockSummary);
     document.getElementById("inventoryFile")?.addEventListener("change", previewInventoryFile);
     document.getElementById("importInventory")?.addEventListener("click", importSelectedInventory);
+    window.setInterval(() => refreshData().catch(() => {}), 30000);
 });
