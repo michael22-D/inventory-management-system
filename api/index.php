@@ -64,7 +64,7 @@ try {
     }
 
     if ($action === 'users') {
-        requireAdministrator($user);
+        requirePermission($user, 'can_manage_users');
         $rows = $pdo->query('SELECT u.id, u.username, u.display_name, u.role, COALESCE(p.can_manage_users, u.role = "Administrator") can_manage_users, COALESCE(p.can_manage_inventory, 1) can_manage_inventory, COALESCE(p.can_manage_stock, 1) can_manage_stock, COALESCE(p.can_view_reports, 1) can_view_reports FROM users u LEFT JOIN user_permissions p ON p.user_id = u.id ORDER BY u.display_name')->fetchAll();
         $users = array_map(static function (array $row): array {
             return ['id' => (int)$row['id'], 'username' => $row['username'], 'displayName' => $row['display_name'], 'role' => $row['role'], 'permissions' => ['canManageUsers' => (bool)$row['can_manage_users'], 'canManageInventory' => (bool)$row['can_manage_inventory'], 'canManageStock' => (bool)$row['can_manage_stock'], 'canViewReports' => (bool)$row['can_view_reports']]];
@@ -72,7 +72,7 @@ try {
         respond(['users' => $users]);
     }
     if ($action === 'create-user') {
-        requireAdministrator($user);
+        requirePermission($user, 'can_manage_users');
         $username = trim((string)($body['username'] ?? '')); $displayName = trim((string)($body['displayName'] ?? '')); $password = (string)($body['password'] ?? ''); $role = trim((string)($body['role'] ?? 'Inventory Officer'));
         if (!preg_match('/^[A-Za-z0-9._-]{3,80}$/', $username) || $displayName === '' || strlen($password) < 6 || $role === '') respond(['error' => 'Enter a valid username, display name, role, and password of at least 6 characters.'], 422);
         $pdo->beginTransaction();
@@ -81,7 +81,7 @@ try {
         $pdo->commit(); respond(['message' => 'User account created.']);
     }
     if ($action === 'update-user') {
-        requireAdministrator($user);
+        requirePermission($user, 'can_manage_users');
         $id = (int)($body['id'] ?? 0); $displayName = trim((string)($body['displayName'] ?? '')); $role = trim((string)($body['role'] ?? 'Inventory Officer')); $password = (string)($body['password'] ?? '');
         if (!$id || $displayName === '' || $role === '' || ($password !== '' && strlen($password) < 6)) respond(['error' => 'Enter a display name and role. New passwords must have at least 6 characters.'], 422);
         $query = $pdo->prepare($password === '' ? 'UPDATE users SET display_name = ?, role = ? WHERE id = ?' : 'UPDATE users SET display_name = ?, role = ?, password_hash = ? WHERE id = ?');
@@ -90,7 +90,7 @@ try {
         respond(['message' => 'User account updated.']);
     }
     if ($action === 'delete-user') {
-        requireAdministrator($user);
+        requirePermission($user, 'can_manage_users');
         $id = (int)($body['id'] ?? 0); if (!$id || $id === (int)$user['id']) respond(['error' => 'You cannot delete your own account.'], 422);
         $query = $pdo->prepare('DELETE FROM users WHERE id = ?'); $query->execute([$id]); respond(['message' => 'User account deleted.']);
     }

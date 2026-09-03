@@ -79,10 +79,10 @@ async function refreshData() {
     const result = await apiRequest("bootstrap", { page });
     inventoryCache = result.inventory;
     transactionsCache = result.transactions;
-    document.querySelectorAll(".admin-only-nav").forEach(element => {
-        element.hidden = result.currentUser?.role !== "Administrator";
-    });
     const permissions = result.currentUser?.permissions || {};
+    document.querySelectorAll(".admin-only-nav").forEach(element => {
+        element.hidden = result.currentUser?.role !== "Administrator" && permissions.canManageUsers !== true;
+    });
     document.querySelectorAll("[data-user-name]").forEach(element => {
         element.innerText = result.currentUser?.displayName || result.currentUser?.username || "User";
     });
@@ -457,7 +457,18 @@ function renderReport() {
     const table = document.getElementById("reportTable");
     if (!table) return;
 
-    const month = document.getElementById("reportMonth")?.value || "all";
+    const monthSelect = document.getElementById("reportMonth");
+    const selectedMonth = monthSelect?.value || "all";
+    if (monthSelect) {
+        const months = [...new Set(getTransactions().map(transaction => transaction.month).filter(Boolean))].sort().reverse();
+        monthSelect.innerHTML = `<option value="all">All Months</option>${months.map(value => {
+            const [year, monthNumber] = value.split("-");
+            const label = new Date(Number(year), Number(monthNumber) - 1, 1).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+            return `<option value="${value}">${label}</option>`;
+        }).join("")}`;
+        monthSelect.value = months.includes(selectedMonth) ? selectedMonth : "all";
+    }
+    const month = monthSelect?.value || "all";
     const transactions = getTransactions().filter(transaction =>
         month === "all" || transaction.month === month
     );
