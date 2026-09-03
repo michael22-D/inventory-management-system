@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | Inventory Management System</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo"><h2>IMS</h2></div>
+            <div class="user-box"><h4>System Administration</h4><p>Manage access and privileges</p></div>
+            <ul class="menu">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="inventory.html">Inventory</a></li>
+                <li><a href="stock-entry.html">Stock-Entry</a></li>
+                <li><a href="history.html">History</a></li>
+                <li><a href="report.html">Report</a></li>
+                <li class="active"><a href="admin.html">Admin</a></li>
+                <li><a href="index.html">Logout</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <div class="header"><h1>User Administration</h1><p>Create accounts and control what each user can access.</p></div>
+            <section class="admin-layout">
+                <div class="form-card admin-form-card">
+                    <div class="section-heading"><div><span class="eyebrow">Account setup</span><h2 id="formTitle">Create user</h2></div><button id="cancelEdit" class="btn-cancel hidden" type="button">Cancel edit</button></div>
+                    <form id="userForm">
+                        <input id="userId" type="hidden">
+                        <div class="form-group"><label for="username">Username</label><input id="username" required maxlength="80" pattern="[A-Za-z0-9._-]{3,80}" placeholder="e.g. j.smith"></div>
+                        <div class="form-group"><label for="displayName">Display name</label><input id="displayName" required maxlength="120" placeholder="Full name"></div>
+                        <div class="form-group"><label for="role">Role</label><input id="role" required maxlength="80" value="Inventory Officer" placeholder="e.g. Storekeeper"></div>
+                        <div class="form-group"><label for="password">Password <span id="passwordHint">(at least 6 characters)</span></label><input id="password" type="password" minlength="6" placeholder="Enter password"></div>
+                        <fieldset><legend>Privileges</legend>
+                            <label class="permission"><input id="canManageUsers" type="checkbox"> Manage users</label>
+                            <label class="permission"><input id="canManageInventory" type="checkbox" checked> Manage inventory</label>
+                            <label class="permission"><input id="canManageStock" type="checkbox" checked> Record stock entries</label>
+                            <label class="permission"><input id="canViewReports" type="checkbox" checked> View reports</label>
+                        </fieldset>
+                        <p id="formMessage" class="form-message" role="status"></p>
+                        <button class="btn-primary" type="submit"><span id="submitLabel">Create account</span></button>
+                    </form>
+                </div>
+                <section class="user-list-section">
+                    <div class="section-heading"><div><span class="eyebrow">Access directory</span><h2>Users</h2></div><span id="userCount" class="user-count">0 accounts</span></div>
+                    <div id="userList" class="user-list"></div>
+                </section>
+            </section>
+            <footer class="footer"><p>© 2026 Inventory Management System</p><p>All Rights Reserved</p></footer>
+        </main>
+    </div>
+    <script src="js/admin.js"></script>
+</body>
+</html>

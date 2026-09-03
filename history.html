@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History</title>
+  
+  <link rel="stylesheet" href="css/dashboard.css">
+   
+</head>
+<body>
+
+<div class="container">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <h2>IMS</h2>
+        </div>
+
+        <div class="user-box">
+            <h4>Michael Djan</h4>
+            <p>Inventory Officer</p>
+        </div>
+
+        <ul class="menu">
+
+                <li>
+                    <a href="dashboard.html">Dashboard</a>
+                </li>
+
+                <li>
+                 <a href="inventory.html">Inventory</a>
+                </li>
+
+                <li>
+		  <a href="stock-entry.html">Stock-Entry</a>
+                    
+                </li>
+
+                <li class= "active">
+		    <a href="history.html">History</a>
+                </li>
+
+                <li>
+         <a href="report.html">Report</a>
+
+                    
+                </li>
+
+                <li><a href="admin.html">Admin</a></li>
+                <li>
+                    <a href="index.html">Logout</a>
+                </li>
+
+            </ul>
+
+
+
+    </aside>
+
+    <main class="main-content">
+
+        <div class="header">
+
+            <h1>Transaction History</h1>
+
+            <p>Inventory Movement Records</p>
+
+        </div>
+
+	<!--History Toolbar-->
+
+
+	<div class="toolbar">
+
+    <input
+        type="text"
+        id="historySearch"
+        class="search-box"
+        placeholder="Search Item..."
+    >
+
+    <select id="historyMonth" class="filter-box">
+        <option value="all">All Months</option>
+        <option value="2026-06">June 2026</option>
+        <option value="2026-07">July 2026</option>
+        <option value="2026-08">August 2026</option>
+    </select>
+
+    <button id="exportHistory" class="add-btn" type="button">
+        Export
+    </button>
+
+</div>
+
+
+<!--Audit Statistic-->
+<div class="cards">
+
+    <div class="card">
+        <h3>Total Transactions</h3>
+        <h2 id="totalTransactions">0</h2>
+    </div>
+
+    <div class="card">
+        <h3>Items Received</h3>
+        <h2 id="itemsReceived">0</h2>
+    </div>
+
+    <div class="card">
+        <h3>Items Supplied</h3>
+        <h2 id="itemsSupplied">0</h2>
+    </div>
+
+</div>
+
+
+        <div class="table-card">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Item</th>
+                        <th>Action</th>
+                        <th>Quantity</th>
+                        <th>Old Stock</th>
+                        <th>New Stock</th>
+                        <th>User</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="historyTable"></tbody>
+
+            </table>
+
+        </div>
+
+	<footer class="footer">
+    <p>
+        © 2026 Inventory Management System
+        <br>
+        All Rights Reserved
+    </p>
+</footer>
+
+
+    </main>
+
+</div>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
