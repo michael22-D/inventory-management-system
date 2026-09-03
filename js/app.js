@@ -294,6 +294,7 @@ async function saveStockEntry() {
 }
 
 let pendingImports = [];
+let lastImportSnapshot = null;
 
 function importHeader(value) {
     return String(value || "").trim().toLowerCase().replace(/[^a-z]/g, "");
@@ -308,13 +309,13 @@ function parseInventoryRows(matrix) {
     const headerIndex = matrix.findIndex(row => {
         const headers = row.map(importHeader);
         return headers.some(header => ["item", "itemname", "product"].includes(header)) &&
-            headers.some(header => ["stock", "currentstock", "balance"].includes(header));
+            headers.some(header => ["stock", "currentstock", "balance", "quantity", "qty"].includes(header));
     });
     if (headerIndex < 0) return [];
 
     const headers = matrix[headerIndex].map(importHeader);
     const itemIndex = headers.findIndex(header => ["item", "itemname", "product"].includes(header));
-    const stockIndex = headers.findIndex(header => ["stock", "currentstock", "balance"].includes(header));
+    const stockIndex = headers.findIndex(header => ["stock", "currentstock", "balance", "quantity", "qty"].includes(header));
     const bfIndex = headers.findIndex(header => ["bf", "broughtforward", "openingstock"].includes(header));
 
     return matrix.slice(headerIndex + 1).map(row => ({
@@ -324,38 +325,15 @@ function parseInventoryRows(matrix) {
     })).filter(row => row.item && row.stock !== null && !/^(total|subtotal|grand total)$/i.test(row.item));
 }
 
-async function parsePdfInventory(file) {
-    if (!window.pdfjsLib) throw new Error("PDF support is unavailable. Check your internet connection.");
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-    const matrix = [];
-    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-        const page = await pdf.getPage(pageNumber);
-        const content = await page.getTextContent();
-        const lines = new Map();
-        content.items.forEach(item => {
-            const y = Math.round(item.transform[5]);
-            const line = lines.get(y) || [];
-            line.push({ x: item.transform[4], text: item.str });
-            lines.set(y, line);
-        });
-        [...lines.entries()].sort((a, b) => b[0] - a[0]).forEach(([, items]) => {
-            matrix.push(items.sort((a, b) => a.x - b.x).map(item => item.text));
-        });
-    }
-    return parseInventoryRows(matrix);
-}
-
 async function parseInventoryFile(file) {
     const extension = file.name.split(".").pop().toLowerCase();
-    if (["xlsx", "xls", "csv"].includes(extension)) {
+    if (["xlsx", "xls"].includes(extension)) {
         if (!window.XLSX) throw new Error("Excel support is unavailable. Check your internet connection.");
         const workbook = window.XLSX.read(await file.arrayBuffer(), { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         return parseInventoryRows(window.XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" }));
     }
-    if (extension === "pdf") return parsePdfInventory(file);
-    throw new Error("Choose an Excel, CSV, or PDF file.");
+    throw new Error("Choose an Excel file (.xlsx or .xls).");
 }
 
 function renderImportPreview() {
@@ -363,9 +341,25 @@ function renderImportPreview() {
     const button = document.getElementById("importInventory");
     if (!table || !button) return;
     table.innerHTML = pendingImports.map((row, index) => `
-        <tr><td><input type="checkbox" data-import-index="${index}" checked></td><td>${row.item}</td><td>${row.bf}</td><td>${row.stock}</td></tr>
+        <tr><td><input type="checkbox" data-import-index="${index}" checked></td><td>${row.item}</td><td>${row.stock}</td></tr>
     `).join("");
     button.disabled = pendingImports.length === 0;
+}
+
+function showImportUndo(message, type = "success") {
+    setImportStatus(message, type);
+    const undoButton = document.getElementById("undoImport");
+    if (undoButton) undoButton.hidden = !lastImportSnapshot;
+}
+
+async function undoLastImport() {
+    if (!lastImportSnapshot || !confirm("Undo this import and restore the previous inventory list?")) return;
+    try {
+        await apiRequest("undo-import", { snapshot: lastImportSnapshot });
+        lastImportSnapshot = null;
+        await refreshData();
+        showImportUndo("The imported items were removed and the previous list was restored.");
+    } catch (error) { setImportStatus(`Undo failed: ${error.message}`, "error"); }
 }
 
 function setImportStatus(message, type = "") {
@@ -399,14 +393,20 @@ async function importSelectedInventory() {
     const selected = [...document.querySelectorAll("[data-import-index]:checked")]
         .map(input => pendingImports[Number(input.dataset.importIndex)]);
     if (!selected.length) return alert("Select at least one inventory row.");
+    if (!confirm(`${selected.length} item(s) will be added or updated in your inventory list. Continue?`)) return;
+    lastImportSnapshot = selected.map(row => {
+        const existing = getInventory().find(record => record.item === row.item);
+        const updatedParts = existing?.updated?.split("/");
+        const updated = updatedParts?.length === 3 ? `${updatedParts[2]}-${updatedParts[1]}-${updatedParts[0]}` : null;
+        return existing ? { id: existing.id, item: existing.item, bf: existing.bf, stock: existing.stock, updated } : { item: row.item };
+    });
     try {
         await apiRequest("import-items", { items: selected });
         await refreshData();
         pendingImports = [];
         document.getElementById("inventoryFile").value = "";
         renderImportPreview();
-        setImportStatus(`${selected.length} inventory row(s) imported successfully.`, "success");
-        alert(`${selected.length} inventory row(s) imported successfully.`);
+        showImportUndo(`${selected.length} inventory row(s) imported successfully. The inventory list has been updated.`);
     } catch (error) { alert(error.message); }
 }
 
@@ -583,5 +583,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("stockQuantity")?.addEventListener("input", updateStockSummary);
     document.getElementById("inventoryFile")?.addEventListener("change", previewInventoryFile);
     document.getElementById("importInventory")?.addEventListener("click", importSelectedInventory);
+    document.getElementById("undoImport")?.addEventListener("click", undoLastImport);
     window.setInterval(() => refreshData().catch(() => {}), 30000);
 });

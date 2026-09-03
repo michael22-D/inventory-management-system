@@ -143,6 +143,22 @@ try {
         foreach (($body['items'] ?? []) as $row) $query->execute([strtoupper(trim((string)$row['item'])), max(0, (int)$row['bf']), max(0, (int)$row['stock'])]);
         $pdo->commit(); respond(['message' => 'Inventory imported.']);
     }
+    if ($action === 'undo-import') {
+        requirePermission($user, 'can_manage_inventory');
+        $pdo->beginTransaction();
+        $update = $pdo->prepare('UPDATE inventory SET item = ?, bf = ?, stock = ?, updated_at = ? WHERE id = ?');
+        $remove = $pdo->prepare('DELETE FROM inventory WHERE item = ?');
+        foreach (($body['snapshot'] ?? []) as $row) {
+            $item = strtoupper(trim((string)($row['item'] ?? '')));
+            if (!$item) continue;
+            if ((int)($row['id'] ?? 0)) {
+                $update->execute([$item, max(0, (int)($row['bf'] ?? 0)), max(0, (int)($row['stock'] ?? 0)), $row['updated'] ?? date('Y-m-d'), (int)$row['id']]);
+            } else {
+                $remove->execute([$item]);
+            }
+        }
+        $pdo->commit(); respond(['message' => 'Imported items were undone.']);
+    }
     respond(['error' => 'Unknown API action.'], 404);
 } catch (Throwable $exception) {
     if ($pdo->inTransaction()) $pdo->rollBack();

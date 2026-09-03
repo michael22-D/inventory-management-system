@@ -26,7 +26,7 @@ The system provides functionalities for:
 - `dashboard.html` - Live inventory and transaction summary
 - `inventory.html` - Inventory records and item management
 - `stock-entry.html` - Record received or supplied stock
-- `stock-entry.html` - Import inventory from Excel, CSV, or text-based PDF files
+- `stock-entry.html` - Import inventory from Excel files
 - `history.html` - View and filter transaction history
 - `report.html` - View, print, and export inventory reports
 
@@ -36,7 +36,7 @@ The application uses PHP and MySQL/MariaDB. PHP provides the API in `api/index.p
 
 Stock entries update the selected inventory item and create a matching transaction-history record. Reports calculate received and supplied totals from those transactions.
 
-The Stock Entry page previews uploaded inventory files before saving. It accepts rows with `ITEM`, `B/F`, and `STOCK` or equivalent column names, ignores totals and invalid rows, and lets users select which rows to import. The importer uses browser libraries loaded from a CDN, so an internet connection is required when opening the page.
+The Stock Entry page previews uploaded Excel files before saving. It accepts `.xlsx` and `.xls` rows with `ITEM` and `QUANTITY` or equivalent column names; `B/F` and `STOCK` are also supported. It ignores totals and invalid rows and lets users select which rows to import. The importer uses a browser library loaded from a CDN, so an internet connection is required when opening the page.
 
 The administrator account can create and manage users from `admin.html`. Privileges control user management, inventory changes, stock entries, and report access. The API enforces permissions server-side.
 

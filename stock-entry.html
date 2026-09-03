@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/stock-entry.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -99,12 +98,13 @@
 
             <div class="form-card import-card" data-required-permission="canManageInventory">
                 <h2>Import Inventory</h2>
-                <p class="import-help">Use an Excel, CSV, or text-based PDF with columns such as ITEM, B/F, RECEIVED, SUPPLIED, and STOCK.</p>
-                <input id="inventoryFile" type="file" accept=".xlsx,.xls,.csv,.pdf">
+                <p class="import-help">Upload an Excel file (.xlsx or .xls) with columns ITEM and QUANTITY. STOCK is also accepted as an alternative to QUANTITY.</p>
+                <input id="inventoryFile" type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
                 <p id="importStatus" class="import-status" role="status"></p>
+                <button id="undoImport" class="btn-undo" type="button" hidden>Undo import</button>
                 <div class="import-preview-wrap">
                     <table class="import-preview">
-                        <thead><tr><th>Select</th><th>Item</th><th>B/F</th><th>Stock</th></tr></thead>
+                        <thead><tr><th>Select</th><th>Item</th><th>Quantity</th></tr></thead>
                         <tbody id="importPreview"></tbody>
                     </table>
                 </div>

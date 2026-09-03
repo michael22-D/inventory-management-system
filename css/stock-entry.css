@@ -228,3 +228,18 @@
 .import-status.success{
     color:#27ae60;
 }
+
+.btn-undo {
+    width: auto;
+    margin: -8px 0 18px;
+    padding: 8px 14px;
+    background: #fff4df;
+    color: #8a5a00;
+    border: 1px solid #f0c36d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.btn-undo:hover {
+    background: #ffe7b3;
+}
