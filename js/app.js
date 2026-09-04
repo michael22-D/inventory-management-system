@@ -73,6 +73,10 @@ function getTransactions() {
     return transactionsCache;
 }
 
+function hasPermission(permission, user) {
+    return user?.role === "Administrator" || user?.permissions?.[permission] === true;
+}
+
 async function refreshData() {
     await confirmTab();
     const page = window.location.pathname.split("/").pop().toLowerCase();
@@ -93,7 +97,7 @@ async function refreshData() {
         element.innerText = result.currentUser?.displayName || result.currentUser?.username || "your account";
     });
     document.querySelectorAll("[data-required-permission]").forEach(element => {
-        element.hidden = permissions[element.dataset.requiredPermission] !== true;
+        element.hidden = !hasPermission(element.dataset.requiredPermission, result.currentUser);
     });
     document.body.classList.add("access-ready");
     const permissionStorageKey = `ims_permissions_${result.currentUser?.username || "user"}`;
@@ -102,7 +106,7 @@ async function refreshData() {
     if (added?.length) alert("A new privilege has been added to your account. Your access has been updated.");
     localStorage.setItem(permissionStorageKey, JSON.stringify(permissions));
     const requiredPagePermission = { "inventory.html": "canManageInventory", "stock-entry.html": "canManageStock", "report.html": "canViewReports" }[page];
-    if (requiredPagePermission && permissions[requiredPagePermission] !== true && result.currentUser?.role !== "Administrator") {
+    if (requiredPagePermission && !hasPermission(requiredPagePermission, result.currentUser)) {
         alert("You do not have permission to access this section.");
         window.location.href = "dashboard.html";
         return;
