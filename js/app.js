@@ -76,6 +76,11 @@ function getTransactions() {
 function hasPermission(permission, user) {
     return user?.role === "Administrator" || user?.permissions?.[permission] === true;
 }
+function findInventoryRecord(reference) {
+    if (typeof reference === "number") return getInventory().find(item => item.id === reference);
+    const itemName = reference?.closest("tr")?.cells[0]?.innerText.trim();
+    return getInventory().find(item => item.item === itemName);
+}
 
 async function refreshData() {
     await confirmTab();
@@ -183,7 +188,7 @@ async function saveNewItem() {
 }
 
 function viewItem(index) {
-    const record = getInventory().find(item => item.id === index);
+    const record = findInventoryRecord(index);
     if (!record) return;
     document.getElementById("modalItem").innerText = record.item;
     document.getElementById("modalBF").innerText = record.bf;
@@ -199,8 +204,10 @@ function closeViewModal() {
 
 async function deleteItem(index) {
     if (!confirm("Are you sure you want to delete this item?")) return;
+    const record = findInventoryRecord(index);
+    if (!record) return alert("This inventory item is no longer available.");
     try {
-        await apiRequest("delete-item", { id: index });
+        await apiRequest("delete-item", { id: record.id });
         await refreshData();
     } catch (error) { alert(error.message); }
 }
@@ -208,10 +215,10 @@ async function deleteItem(index) {
 let editingItemIndex = null;
 
 function editItem(index) {
-    const record = getInventory().find(item => item.id === index);
+    const record = findInventoryRecord(index);
     if (!record) return;
 
-    editingItemIndex = index;
+    editingItemIndex = record.id;
     document.getElementById("editItemName").value = record.item;
     document.getElementById("editStock").value = record.stock;
     document.getElementById("editItemModal").style.display = "flex";
