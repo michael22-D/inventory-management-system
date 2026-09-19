@@ -107,15 +107,35 @@ try {
         requirePermission($user, 'can_manage_inventory');
         $item = strtoupper(trim((string)($body['item'] ?? '')));
         if ($item === '') respond(['error' => 'Item name is required.'], 422);
+        $bf = max(0, (int)($body['bf'] ?? 0));
+        $stock = max(0, (int)($body['stock'] ?? 0));
+        $pdo->beginTransaction();
         $query = $pdo->prepare('INSERT INTO inventory (item, bf, stock, updated_at) VALUES (?, ?, ?, CURDATE())');
-        $query->execute([$item, max(0, (int)($body['bf'] ?? 0)), max(0, (int)($body['stock'] ?? 0))]); respond(['message' => 'Item added.']);
+        $query->execute([$item, $bf, $stock]);
+        $inventoryId = (int)$pdo->lastInsertId();
+        $query = $pdo->prepare('INSERT INTO transactions (inventory_id, action, quantity, old_stock, new_stock, user_id) VALUES (?, ?, ?, ?, ?, ?)');
+        $query->execute([$inventoryId, 'Received', $stock, 0, $stock, $_SESSION['user_id']]);
+        $pdo->commit();
+        respond(['message' => 'Item added.']);
     }
     if ($action === 'update-item') {
         requirePermission($user, 'can_manage_inventory');
         $item = strtoupper(trim((string)($body['item'] ?? ''))); $stock = (int)($body['stock'] ?? -1);
         if (!(int)($body['id'] ?? 0) || $item === '' || $stock < 0) respond(['error' => 'Invalid item details.'], 422);
+        $pdo->beginTransaction();
+        $query = $pdo->prepare('SELECT stock FROM inventory WHERE id = ? FOR UPDATE');
+        $query->execute([(int)$body['id']]);
+        $record = $query->fetch();
+        if (!$record) respond(['error' => 'This inventory item is no longer available.'], 404);
+        $oldStock = (int)$record['stock'];
         $query = $pdo->prepare('UPDATE inventory SET item = ?, stock = ?, updated_at = CURDATE() WHERE id = ?');
-        $query->execute([$item, $stock, (int)$body['id']]); respond(['message' => 'Item updated.']);
+        $query->execute([$item, $stock, (int)$body['id']]);
+        $difference = $stock - $oldStock;
+        $actionName = $difference >= 0 ? 'Received' : 'Supplied';
+        $query = $pdo->prepare('INSERT INTO transactions (inventory_id, action, quantity, old_stock, new_stock, user_id) VALUES (?, ?, ?, ?, ?, ?)');
+        $query->execute([(int)$body['id'], $actionName, abs($difference), $oldStock, $stock, $_SESSION['user_id']]);
+        $pdo->commit();
+        respond(['message' => 'Item updated.']);
     }
     if ($action === 'delete-item') {
         requirePermission($user, 'can_manage_inventory');
